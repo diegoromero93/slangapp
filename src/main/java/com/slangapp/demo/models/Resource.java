@@ -23,7 +23,7 @@ public class Resource {
     @Column(name = "resource_id", nullable = false)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id", nullable = false)
     private Word word;
 

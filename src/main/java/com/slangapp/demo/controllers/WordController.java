@@ -1,6 +1,5 @@
 package com.slangapp.demo.controllers;
 
-import com.slangapp.demo.enums.ActivityType;
 import com.slangapp.demo.enums.ResourceType;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.repositories.ResourceRepository;
@@ -13,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -28,8 +27,8 @@ public class WordController {
     ResourceRepository resourceRepository;
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    public ResponseEntity<?> getWord() {
-        Word word = wordRepository.findById(1l).get();
+    public ResponseEntity<?> getWord() throws IOException {
+        Word word = wordRepository.findById(4l).get();
         List<Resource> resourceList = resourceRepository.findAllByResourceTypeAndWord(ResourceType.AUDIO.getCode(),word);
         WordScrambleActivity wordScrambleActivity = new WordScrambleActivity();
         wordScrambleActivity.setLetters(word.getWord());

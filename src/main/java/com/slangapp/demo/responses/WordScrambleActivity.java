@@ -14,25 +14,25 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class WordScrambleActivity implements Serializable, Activity {
+public class WordScrambleActivity implements Serializable {
 
-    List<Character> letters;
-    ActivityType activityType = ActivityType.WORD_SCRAMBLE;
-    List<Resource> resources;
+    private ActivityType activityType = ActivityType.WORD_SCRAMBLE;
+    private List<Character> choices;
+    private List<Character> correctAnswer;
+    private Boolean correct;
+    private List<Resource> resources;
     
 
     public void setLetters(String word){
-        if(letters == null){
-            letters = new ArrayList<>();
+        if(choices == null){
+            choices = new ArrayList<>();
+            correctAnswer = new ArrayList<>();
         }
         for(int i=0; i< word.length(); i++){
-            letters.add(word.charAt(i));
+            choices.add(word.charAt(i));
+            correctAnswer.add(word.charAt(i));
         }
-        Collections.shuffle(letters);
+        Collections.shuffle(choices);
     }
 
-    @Override
-    public Double calculateXP() {
-        return null;
-    }
 }
