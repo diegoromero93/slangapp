@@ -1,8 +1,9 @@
 package com.slangapp.demo.responses;
 
 
-import com.slangapp.demo.enums.ActivityType;
+import com.slangapp.demo.enums.ActivityTypeEnum;
 
 public abstract class ActivityAbs {
-    ActivityType activityType;
+    ActivityTypeEnum activityTypeEnum;
+
 }

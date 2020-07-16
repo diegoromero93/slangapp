@@ -1,7 +1,8 @@
 package com.slangapp.demo.models;
 
 
-import com.slangapp.demo.enums.ResourceType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.slangapp.demo.enums.ResourceTypeEnum;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ public class Resource {
     @Column(name = "resource_id", nullable = false)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id", nullable = false)
     private Word word;
@@ -34,12 +36,12 @@ public class Resource {
     private String resourceType;
 
 
-    public ResourceType getResourceType(){
-        return ResourceType.getResourceTypeEnum(this.resourceType);
+    public ResourceTypeEnum getResourceType(){
+        return ResourceTypeEnum.getResourceTypeEnum(this.resourceType);
     }
 
-    public void setResourceType(ResourceType resourceType){
-        this.resourceType = resourceType != null ? resourceType.getCode() : null;
+    public void setResourceType(ResourceTypeEnum resourceTypeEnum){
+        this.resourceType = resourceTypeEnum != null ? resourceTypeEnum.getCode() : null;
     }
 
 }

@@ -24,4 +24,11 @@ public class Word implements Serializable {
     @Column(name = "word", nullable = false)
     private String word;
 
+    @Column(name = "phonetic", nullable = false)
+    private String phonetic;
+
+    public void setWord(String word){
+        this.word = word.toLowerCase().trim();
+    }
+
 }
