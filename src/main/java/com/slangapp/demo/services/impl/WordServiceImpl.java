@@ -5,7 +5,7 @@ import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
 import com.slangapp.demo.repositories.ResourceRepository;
 import com.slangapp.demo.repositories.WordRepository;
-import com.slangapp.demo.services.AmazonAudioManagment;
+import com.slangapp.demo.services.AmazonAudioManagementService;
 import com.slangapp.demo.services.ReadDictionaryService;
 import com.slangapp.demo.services.WordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class WordServiceImpl implements WordService {
 
 
     @Autowired
-    AmazonAudioManagment audioManagment;
+    AmazonAudioManagementService amazonAudioManagementService;
 
     @Autowired
     WordRepository wordRepository;
@@ -38,7 +38,7 @@ public class WordServiceImpl implements WordService {
     public List<Word> saveAll(List<Word> words) throws IOException, ExecutionException, InterruptedException {
         List<Resource> resourceList = new ArrayList<>();
         for(Word word: words){
-            String resourceURL = "";//audioManagment.createAndSaveAudioFile(word.getWord()).get();
+            String resourceURL ="";// amazonAudioManagementService.createAndSaveAudioFile(word.getWord()).get();
             String phonetic = readDictionaryService.getIPAPhonetic(word.getWord()).get();
             word.setPhonetic(phonetic);
             Resource resource = new Resource();
@@ -54,7 +54,7 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public Word save(Word word) throws IOException, ExecutionException, InterruptedException {
-        String resourceURL = "";//audioManagment.createAndSaveAudioFile(word.getWord()).get();
+        String resourceURL = "";//amazonAudioManagementService.createAndSaveAudioFile(word.getWord()).get();
         String phonetic = readDictionaryService.getIPAPhonetic(word.getWord()).get();
         word.setPhonetic(phonetic);
         Resource resource = new Resource();

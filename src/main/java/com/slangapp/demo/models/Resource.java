@@ -2,10 +2,15 @@ package com.slangapp.demo.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.slangapp.demo.enums.ResourceTypeEnum;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "resources")
@@ -15,8 +20,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Resource {
-
+public class Resource implements Serializable {
 
     @Id
     @NonNull
@@ -24,7 +28,7 @@ public class Resource {
     @Column(name = "resource_id", nullable = false)
     private Long id;
 
-    @JsonIgnore
+    @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id", nullable = false)
     private Word word;
@@ -34,6 +38,14 @@ public class Resource {
 
     @Column(name = "resource_type", nullable = false)
     private String resourceType;
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private Date createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private Date updatedOn;
 
 
     public ResourceTypeEnum getResourceType(){
