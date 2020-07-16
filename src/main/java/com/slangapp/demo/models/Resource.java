@@ -1,7 +1,6 @@
 package com.slangapp.demo.models;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.slangapp.demo.enums.ResourceTypeEnum;
 import lombok.*;

@@ -2,10 +2,12 @@ package com.slangapp.demo.services.impl;
 
 import com.slangapp.demo.enums.ActivityTypeEnum;
 import com.slangapp.demo.enums.ResourceTypeEnum;
+import com.slangapp.demo.models.PhonemeDistractor;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
 import com.slangapp.demo.pojos.Activity;
 import com.slangapp.demo.pojos.WordScrambleActivity;
+import com.slangapp.demo.repositories.PhonemeDistractorRepository;
 import com.slangapp.demo.repositories.ResourceRepository;
 import com.slangapp.demo.repositories.WordRepository;
 import com.slangapp.demo.services.ActivityService;
@@ -25,17 +27,18 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private WordRepository wordRepository;
 
+    @Autowired
+    private PhonemeDistractorRepository phonemeDistractorRepository;
+
     private HashMap<String, String> distractorsHM;
 
 
     @PostConstruct
     public void init(){
-        String distractors = "ɪ-ea|i-i|ɛ-i|ɪ-e|ɛ-ai|eɪ-e|æ-u|ʌ-a|oʊ-a|ɔ-o|æ-e|ɛ-a|b-v,p|v-b|p-b|n-g|ŋ-n|l-r|r-l|s-h,th|f-v,h,t|v-f|h-f|θ-f,s";
-        String[] distractorsArray = distractors.split("\\|");
+        List<PhonemeDistractor> phonemeDistractorList = phonemeDistractorRepository.findAll();
          distractorsHM = new HashMap<>();
-        for (String s : distractorsArray) {
-            String[] item = s.split("-");
-            distractorsHM.put(item[0], item[1]);
+        for (PhonemeDistractor distractor : phonemeDistractorList) {
+            distractorsHM.put(distractor.getPhoneme(), distractor.getDistractor());
         }
     }
 
@@ -95,6 +98,11 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
 
+    /**
+     * Get random character to complete word
+     * @param choices
+     * @return
+     */
     private String getRandomCharacter(List<String> choices){
         Boolean duplicate = new Random().nextBoolean();
         if(duplicate){

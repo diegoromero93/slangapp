@@ -1,7 +1,5 @@
 package com.slangapp.demo.pojos;
 
-import com.slangapp.demo.enums.ActivityTypeEnum;
-import com.slangapp.demo.models.Resource;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
