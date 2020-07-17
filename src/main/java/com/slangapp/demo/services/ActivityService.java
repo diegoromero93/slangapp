@@ -1,7 +1,7 @@
 package com.slangapp.demo.services;
 
-import com.slangapp.demo.pojos.Activity;
+import com.slangapp.demo.controllers.responses.ActivityResponse;
 
 public interface ActivityService {
-    Activity getUserActivity(Activity currentActivity);
+    ActivityResponse getUserActivity(Long id);
 }

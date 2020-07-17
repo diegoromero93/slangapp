@@ -4,6 +4,7 @@ import com.slangapp.demo.models.PhonemeDistractor;
 import com.slangapp.demo.models.Word;
 import com.slangapp.demo.repositories.PhonemeDistractorRepository;
 import com.slangapp.demo.services.WordService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -28,16 +29,22 @@ public class DemoApplication {
         SpringApplication.run(DemoApplication.class, args);
     }
 
+    @Value("${spring.jpa.hibernate.populate:false}")
+    boolean populate;
+
 
     @Bean
     CommandLineRunner initDatabase(WordService wordService, PhonemeDistractorRepository phonemeDistractorRepository) {
-        List<PhonemeDistractor> phonemeDistractorsList = addPhonemes();
-        List<Word> wordList = addSampleWords();
+        if(populate){
+            List<PhonemeDistractor> phonemeDistractorsList = addPhonemes();
+            List<Word> wordList = addSampleWords();
 
-        return args -> {
-            //wordService.saveAll(wordList);
-            //phonemeDistractorRepository.saveAll(phonemeDistractorsList);
-        };
+            return args -> {
+                wordService.saveAll(wordList);
+                phonemeDistractorRepository.saveAll(phonemeDistractorsList);
+            };
+        }
+        return null;
     }
 
 
@@ -63,17 +70,17 @@ public class DemoApplication {
      * @return List<PhonemeDistractor>
      */
       private List<PhonemeDistractor> addPhonemes(){
-        String distractors = "ɪ-ea|i-i|ɛ-i|ɪ-e|ɛ-ai|eɪ-e|æ-u|ʌ-a|oʊ-a|ɔ-o|æ-e|ɛ-a|b-v,p|v-b|p-b|n-g|ŋ-n|l-r|r-l|s-h,th|f-v,h,t|v-f|h-f|θ-f,s";
-        List<PhonemeDistractor> phonemeDistractorsList = new ArrayList<>();
-        String[] distractorsArray = distractors.split("\\|");
-        for (String s : distractorsArray) {
-            PhonemeDistractor phonemeDistractor = new PhonemeDistractor();
-            String[] item = s.split("-");
-            phonemeDistractor.setPhoneme(item[0]);
-            phonemeDistractor.setDistractor(item[1]);
-            phonemeDistractorsList.add(phonemeDistractor);
-        }
-        return phonemeDistractorsList;
+          String distractors = "ɪ-ea|i-i|ɛ-i,ai,a|ɪ-e|eɪ-e|æ-u|ʌ-a|oʊ-a|ɔ-o|æ-e|b-v,p|v-b|p-b|n-g|ŋ-n|l-r|r-l|s-h,th|f-v,h,th|v-f|h-f|θ-f,s";
+          List<PhonemeDistractor> phonemeDistractorsList = new ArrayList<>();
+          String[] distractorsArray = distractors.split("\\|");
+          for (String s : distractorsArray) {
+              PhonemeDistractor phonemeDistractor = new PhonemeDistractor();
+              String[] item = s.split("-");
+              phonemeDistractor.setPhoneme(item[0]);
+              phonemeDistractor.setDistractor(item[1]);
+              phonemeDistractorsList.add(phonemeDistractor);
+          }
+          return phonemeDistractorsList;
     }
 
     /**
@@ -81,7 +88,7 @@ public class DemoApplication {
      * @return List<Word>
      */
     private List<Word> addSampleWords(){
-        String nouns = "book, time, person, year, way, day, thing, man, world, life, hand, part, child, eye, woman, place, work, week, case, point, government, company, number, group, problem, fact";
+        String nouns = "sit, seat, desk, disk, wet, wait, bat, but, book, so, saw, time, person, year, way, day, thing, man, world, life, hand, part, child, eye, woman, place, work, week, case, point, government, company, number, group, problem, fact";
         String[] nounsArray = nouns.split(",");
         List<Word> wordList = new ArrayList<>();
         for(int i = 0; i <nounsArray.length; i++){

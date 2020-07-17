@@ -1,6 +1,5 @@
 package com.slangapp.demo.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -8,20 +7,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "word")
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "id" })
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Table(name = "word")
+@Builder(toBuilder = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Word implements Serializable {
 
     @Id
-    @NonNull
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "word_id", nullable = false)
     private Long id;
@@ -31,10 +30,6 @@ public class Word implements Serializable {
 
     @Column(name = "phonetic", nullable = false)
     private String phonetic;
-
-    @JsonBackReference
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY,mappedBy = "word")
-    private List<Resource> resources;
 
     @Column(name = "created_at")
     @CreationTimestamp

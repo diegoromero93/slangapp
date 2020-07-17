@@ -1,7 +1,6 @@
 package com.slangapp.demo.models;
 
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.slangapp.demo.enums.ResourceTypeEnum;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,13 +11,13 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "resources")
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "id" })
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Table(name = "resources")
+@Builder(toBuilder = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Resource implements Serializable {
 
     @Id
@@ -27,7 +26,6 @@ public class Resource implements Serializable {
     @Column(name = "resource_id", nullable = false)
     private Long id;
 
-    @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id", nullable = false)
     private Word word;

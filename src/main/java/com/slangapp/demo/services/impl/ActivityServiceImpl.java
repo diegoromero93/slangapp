@@ -5,11 +5,11 @@ import com.slangapp.demo.enums.ResourceTypeEnum;
 import com.slangapp.demo.models.PhonemeDistractor;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
-import com.slangapp.demo.pojos.Activity;
 import com.slangapp.demo.pojos.WordScrambleActivity;
 import com.slangapp.demo.repositories.PhonemeDistractorRepository;
 import com.slangapp.demo.repositories.ResourceRepository;
 import com.slangapp.demo.repositories.WordRepository;
+import com.slangapp.demo.controllers.responses.ActivityResponse;
 import com.slangapp.demo.services.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,36 +30,34 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private PhonemeDistractorRepository phonemeDistractorRepository;
 
-    private HashMap<String, String> distractorsHM;
-
+    private List<PhonemeDistractor> phonemeDistractorList;
 
     @PostConstruct
     public void init(){
-        List<PhonemeDistractor> phonemeDistractorList = phonemeDistractorRepository.findAll();
-         distractorsHM = new HashMap<>();
-        for (PhonemeDistractor distractor : phonemeDistractorList) {
-            distractorsHM.put(distractor.getPhoneme(), distractor.getDistractor());
-        }
+        phonemeDistractorList = phonemeDistractorRepository.findAll();
     }
 
     /**
      * Will generate an activity for the user
-     * @param currentActivity
+     * @param id
      * @return Activity
      */
     @Override
-    public Activity getUserActivity(Activity currentActivity) {
+    public ActivityResponse getUserActivity(Long id) {
         WordScrambleActivity wordScrambleActivity = new WordScrambleActivity();
-        if(currentActivity == null){
-            Word word = wordRepository.findById(1l).get();
-            List<Resource> resourceList = resourceRepository.findAllByResourceTypeAndWord(ResourceTypeEnum.AUDIO.getCode(),word);
-            wordScrambleActivity.setActivityTypeEnum(ActivityTypeEnum.WORD_SCRAMBLE);
-            wordScrambleActivity.setChoices(getScrambleWord(word));
-            wordScrambleActivity.setResources(resourceList);
-            wordScrambleActivity.setActivityId(word.getId());
+        Word word = wordRepository.findById(id).get();
+        List<Resource> resourceList = resourceRepository.findAllByResourceTypeAndWord(ResourceTypeEnum.AUDIO.getCode(),word);
+        wordScrambleActivity.setActivityTypeEnum(ActivityTypeEnum.WORD_SCRAMBLE);
+        wordScrambleActivity.setChoices(getScrambleWord(word));
+        wordScrambleActivity.setResources(resourceList);
+        wordScrambleActivity.setActivityId(word.getId());
 
-        }
-        return wordScrambleActivity;
+        ActivityResponse activityResponse = new ActivityResponse();
+        activityResponse.setCurrentActivity(wordScrambleActivity);
+
+
+        activityResponse.setNextActivities(wordScrambleActivity);
+        return activityResponse;
     }
 
     /**
@@ -76,22 +74,19 @@ public class ActivityServiceImpl implements ActivityService {
         for(int i=0; i< wordString.length(); i++){
             choices.add(String.valueOf(wordString.charAt(i)));
         }
-        for(String currentKey : distractorsHM.keySet()) {
-            if((lettersToAdd + wordString.length()) == choices.size()) break;
-            if(word.getPhonetic().contains(currentKey)){
-                String[] distractors = distractorsHM.get(currentKey).split(",");
+        for(PhonemeDistractor currentKey : phonemeDistractorList) {
+            if(choices.size() >= (lettersToAdd + wordString.length())) break;
+            if(word.getPhonetic().contains(currentKey.getPhoneme())){
+                String[] distractors = currentKey.getDistractor().split(",");
                 int index = 0;
                 if(distractors.length > 1){
                     index = ThreadLocalRandom.current().nextInt(0, distractors.length);
                 }
-                choices.add(distractors[index]);
+                choices.addAll(Arrays.asList(distractors[index].split("")));
             }
         }
-        if((lettersToAdd + wordString.length()) > choices.size()){
-            do{
-                choices.add(getRandomCharacter(choices));
-            } while ((lettersToAdd + wordString.length()) > choices.size());
-
+        while ((lettersToAdd + wordString.length()) > choices.size()){
+            choices.add(getRandomCharacter(choices));
         }
         Collections.shuffle(choices);
         return choices;

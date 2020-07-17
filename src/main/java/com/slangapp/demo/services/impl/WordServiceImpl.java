@@ -1,5 +1,8 @@
 package com.slangapp.demo.services.impl;
 
+import com.slangapp.demo.controllers.request.WordRequest;
+import com.slangapp.demo.controllers.responses.ResourceResponse;
+import com.slangapp.demo.controllers.responses.WordResponse;
 import com.slangapp.demo.enums.ResourceTypeEnum;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
@@ -8,6 +11,7 @@ import com.slangapp.demo.repositories.WordRepository;
 import com.slangapp.demo.services.AmazonAudioManagementService;
 import com.slangapp.demo.services.ReadDictionaryService;
 import com.slangapp.demo.services.WordService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,9 +20,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 
+import javax.transaction.Transactional;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -37,37 +42,38 @@ public class WordServiceImpl implements WordService {
     @Autowired
     ReadDictionaryService readDictionaryService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
 
     @Override
-    public List<Word> saveAll(List<Word> words) throws IOException, ExecutionException, InterruptedException {
+    @Transactional
+    public void saveAll(List<Word> words) throws IOException, ExecutionException, InterruptedException {
         List<Resource> resourceList = new ArrayList<>();
         for(Word word: words){
-            String resourceURL ="";// amazonAudioManagementService.createAndSaveAudioFile(word.getWord()).get();
-            String phonetic = readDictionaryService.getIPAPhonetic(word.getWord()).get();
-            word.setPhonetic(phonetic);
+            word.setPhonetic(getIPAPhonetic(word.getWord()));
             Resource resource = new Resource();
             resource.setWord(word);
             resource.setResourceType(ResourceTypeEnum.AUDIO);
-            resource.setResourceUrl(resourceURL);
+            resource.setResourceUrl(getResourceURL(word.getWord()));
             resourceList.add(resource);
         }
-        List<Word> wordList = wordRepository.saveAll(words);
+        wordRepository.saveAll(words);
         resourceRepository.saveAll(resourceList);
-        return wordList;
     }
 
     @Override
-    public Word save(Word word) throws IOException, ExecutionException, InterruptedException {
-        String resourceURL = "";//amazonAudioManagementService.createAndSaveAudioFile(word.getWord()).get();
-        String phonetic = readDictionaryService.getIPAPhonetic(word.getWord()).get();
-        word.setPhonetic(phonetic);
+    @Transactional
+    public WordResponse save(WordRequest wordRequest) throws IOException, ExecutionException, InterruptedException {
+        Word word = getModelFromRequest(wordRequest);
+        word.setPhonetic(getIPAPhonetic(word.getWord()));
         Resource resource = new Resource();
         resource.setWord(word);
         resource.setResourceType(ResourceTypeEnum.AUDIO);
-        resource.setResourceUrl(resourceURL);
-        Word newWord = wordRepository.save(word);
+        resource.setResourceUrl(getResourceURL(word.getWord()));
+        wordRepository.save(word);
         resourceRepository.save(resource);
-        return newWord;
+        return getRequestFromModel(word, resource);
     }
 
     @Override
@@ -85,6 +91,27 @@ public class WordServiceImpl implements WordService {
         Pageable pageable = PageRequest.of(pageNo, itemsPerPage, Sort.by(orders));
         Page<Word> pagedResult = wordRepository.findByFilterName(pageable, word);
         return pagedResult;
+    }
+
+
+    private Word getModelFromRequest(WordRequest wordRequest){
+        return modelMapper.map(wordRequest, Word.class);
+    }
+
+    private WordResponse getRequestFromModel(Word word, Resource resource){
+        WordResponse wordResponse =  modelMapper.map(word, WordResponse.class);
+        ResourceResponse resourceResponse = modelMapper.map(resource, ResourceResponse.class);
+        wordResponse.setResources(new HashSet<>(Arrays.asList(resourceResponse)));
+        return wordResponse;
+    }
+
+
+    private String getResourceURL(String word) throws IOException, ExecutionException, InterruptedException {
+        return amazonAudioManagementService.createAndSaveAudioFile(word).get();
+    }
+
+    private String getIPAPhonetic(String word) throws FileNotFoundException, ExecutionException, InterruptedException {
+        return readDictionaryService.getIPAPhonetic(word).get();
     }
 
 }
