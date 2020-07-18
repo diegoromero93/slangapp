@@ -124,7 +124,7 @@ public class WordServiceImpl implements WordService {
     }
 
     private String getIPAPhonetic(String word) throws FileNotFoundException, ExecutionException, InterruptedException {
-        return "";//readDictionaryService.getIPAPhonetic(word).get();
+        return readDictionaryService.getIPAPhonetic(word).get();
     }
 
 }

@@ -1,25 +1,48 @@
 package com.slangapp.demo.services.impl;
 
 import com.slangapp.demo.services.ReadDictionaryService;
-import org.springframework.core.io.ClassPathResource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.util.ResourceUtils;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 public class ReadDictionaryServiceImpl implements ReadDictionaryService {
 
-    private static File dictionaryFile;
+    @Autowired
+    ResourceLoader resourceLoader;
+
+    private static String data;
 
     @PostConstruct
     public void init() throws IOException {
-        dictionaryFile = new ClassPathResource("static/CMU-ipa-syllables.txt").getFile();
+        Resource resource = resourceLoader.getResource("classpath:static/CMU-ipa-syllables.txt");
+        InputStream dictionaryStream = resource.getInputStream();
+        try
+        {
+            byte[] bdata = FileCopyUtils.copyToByteArray(dictionaryStream);
+            data = new String(bdata, StandardCharsets.UTF_8);
+            log.info(data);
+        }
+        catch (IOException e)
+        {
+            log.error("IOException", e);
+            throw e;
+        }
     }
 
     @Override
@@ -27,7 +50,7 @@ public class ReadDictionaryServiceImpl implements ReadDictionaryService {
     public CompletableFuture<String> getIPAPhonetic(String word) throws FileNotFoundException {
         Scanner in = null;
         String phonetic = null;
-        in = new Scanner(dictionaryFile);
+        in = new Scanner(data);
         while(in.hasNext())
         {
             String line = in.nextLine();
