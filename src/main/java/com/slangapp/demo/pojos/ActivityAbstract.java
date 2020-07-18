@@ -1,20 +1,25 @@
 package com.slangapp.demo.pojos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.slangapp.demo.controllers.responses.ResourceResponse;
 import com.slangapp.demo.enums.ActivityTypeEnum;
-import com.slangapp.demo.models.Resource;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
-public abstract class ActivityAbstract implements Activity {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public abstract class ActivityAbstract implements Activity, Serializable {
+    @JsonProperty("activity_type")
     private ActivityTypeEnum activityTypeEnum;
-    private List<Resource> resources;
+    private List<ResourceResponse> resources;
+
+    @JsonProperty("activity_id")
     private Long activityId;
     private Boolean correct;
-    private int maxQuantity;
-    private String word;
 }

@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, Long>, PagingAndSortingRepository<Resource, Long> {
     List<Resource> findAllByResourceTypeAndWord(String resourceType, Word word);
+    List<Resource> findByWord(Word word);
 }

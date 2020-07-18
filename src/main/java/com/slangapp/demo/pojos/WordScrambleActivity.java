@@ -1,16 +1,20 @@
 package com.slangapp.demo.pojos;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
-public class WordScrambleActivity extends ActivityAbstract implements Serializable {
+@AllArgsConstructor
+public class WordScrambleActivity extends ActivityAbstract{
     private List<String> choices;
-    private List<Character> correctAnswer;
+    @JsonProperty("correct_answer")
+    private List<String> correctAnswer;
+    @JsonProperty("correct_answer_length")
+    private int correctAnswerLength;
 }

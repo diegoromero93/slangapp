@@ -39,8 +39,4 @@ public class Word implements Serializable {
     @UpdateTimestamp
     private Date updatedOn;
 
-    public void setWord(String word){
-        this.word = word.toLowerCase().trim();
-    }
-
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface WordService {
     void saveAll(List<Word> words) throws IOException, ExecutionException, InterruptedException;
+    WordResponse findById(long id);
     WordResponse save(WordRequest word) throws IOException, ExecutionException, InterruptedException;
-    Page<Word> getAllWords(Integer pageNo, Integer itemsPerPage, String[] sortBy, String[] desc, String word);
+    Page<WordResponse> getAllWords(Integer pageNo, Integer itemsPerPage, String[] sortBy, String[] desc, String word);
 }

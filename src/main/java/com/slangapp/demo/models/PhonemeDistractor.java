@@ -9,13 +9,13 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "phoneme_distractors")
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "id" })
 @Getter
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
+@ToString(of = { "id" })
+@EqualsAndHashCode(of = { "id" })
+@Table(name = "phoneme_distractors")
 public class PhonemeDistractor implements Serializable {
 
     @Id

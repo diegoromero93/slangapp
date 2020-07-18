@@ -12,19 +12,19 @@ import com.slangapp.demo.services.AmazonAudioManagementService;
 import com.slangapp.demo.services.ReadDictionaryService;
 import com.slangapp.demo.services.WordService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 
 import javax.transaction.Transactional;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class WordServiceImpl implements WordService {
@@ -73,11 +73,11 @@ public class WordServiceImpl implements WordService {
         resource.setResourceUrl(getResourceURL(word.getWord()));
         wordRepository.save(word);
         resourceRepository.save(resource);
-        return getRequestFromModel(word, resource);
+        return getRequestFromModel(word, Arrays.asList(resource));
     }
 
     @Override
-    public Page<Word> getAllWords(Integer pageNo, Integer itemsPerPage, String[] sortBy, String[] desc, String word) {
+    public Page<WordResponse> getAllWords(Integer pageNo, Integer itemsPerPage, String[] sortBy, String[] desc, String word) {
         List<Sort.Order> orders = new ArrayList<>();
         if(sortBy.length > 0 && desc.length > 0){
             for(int i=0;i < sortBy.length ; i++){
@@ -90,7 +90,17 @@ public class WordServiceImpl implements WordService {
         }
         Pageable pageable = PageRequest.of(pageNo, itemsPerPage, Sort.by(orders));
         Page<Word> pagedResult = wordRepository.findByFilterName(pageable, word);
-        return pagedResult;
+
+        return new PageImpl<>(pagedResult.stream()
+                .map(item -> modelMapper.map(item, WordResponse.class))
+                .collect(Collectors.toList()), pageable, pagedResult.getTotalElements());
+    }
+
+    @Override
+    public WordResponse findById(long id) {
+        Word word = wordRepository.getOne(id);
+        List<Resource> resourcesSet =  resourceRepository.findByWord(word);
+        return getRequestFromModel(word, resourcesSet);
     }
 
 
@@ -98,10 +108,11 @@ public class WordServiceImpl implements WordService {
         return modelMapper.map(wordRequest, Word.class);
     }
 
-    private WordResponse getRequestFromModel(Word word, Resource resource){
+    private WordResponse getRequestFromModel(Word word, List<Resource> resources){
         WordResponse wordResponse =  modelMapper.map(word, WordResponse.class);
-        ResourceResponse resourceResponse = modelMapper.map(resource, ResourceResponse.class);
-        wordResponse.setResources(new HashSet<>(Arrays.asList(resourceResponse)));
+        Type targetListType = new TypeToken<List<ResourceResponse>>() {}.getType();
+        List<ResourceResponse> resourceResponseList = modelMapper.map(resources, targetListType);
+        wordResponse.setResources(resourceResponseList);
         return wordResponse;
     }
 
