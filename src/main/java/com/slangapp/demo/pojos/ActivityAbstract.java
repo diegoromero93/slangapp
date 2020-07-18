@@ -14,12 +14,18 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class ActivityAbstract implements Activity, Serializable {
+public abstract class ActivityAbstract implements ActivityInterface, Serializable {
     @JsonProperty("activity_type")
     private ActivityTypeEnum activityTypeEnum;
     private List<ResourceResponse> resources;
 
     @JsonProperty("activity_id")
     private Long activityId;
+
+    @JsonProperty("current_xp")
+    private Integer currentXP;
+
+
+    private String message;
     private Boolean correct;
 }

@@ -4,8 +4,10 @@ import com.slangapp.demo.controllers.request.WordRequest;
 import com.slangapp.demo.controllers.responses.ResourceResponse;
 import com.slangapp.demo.controllers.responses.WordResponse;
 import com.slangapp.demo.enums.ResourceTypeEnum;
+import com.slangapp.demo.models.Activity;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
+import com.slangapp.demo.repositories.ActivityRepository;
 import com.slangapp.demo.repositories.ResourceRepository;
 import com.slangapp.demo.repositories.WordRepository;
 import com.slangapp.demo.services.AmazonAudioManagementService;
@@ -118,11 +120,11 @@ public class WordServiceImpl implements WordService {
 
 
     private String getResourceURL(String word) throws IOException, ExecutionException, InterruptedException {
-        return amazonAudioManagementService.createAndSaveAudioFile(word).get();
+        return ""; //amazonAudioManagementService.createAndSaveAudioFile(word).get();
     }
 
     private String getIPAPhonetic(String word) throws FileNotFoundException, ExecutionException, InterruptedException {
-        return readDictionaryService.getIPAPhonetic(word).get();
+        return "";//readDictionaryService.getIPAPhonetic(word).get();
     }
 
 }

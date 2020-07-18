@@ -5,12 +5,14 @@ import com.slangapp.demo.controllers.request.ActivityEvaluationRequest;
 import com.slangapp.demo.controllers.responses.ResourceResponse;
 import com.slangapp.demo.enums.ActivityTypeEnum;
 import com.slangapp.demo.enums.ResourceTypeEnum;
+import com.slangapp.demo.models.Activity;
 import com.slangapp.demo.models.PhonemeDistractor;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
-import com.slangapp.demo.pojos.Activity;
+import com.slangapp.demo.pojos.ActivityInterface;
 import com.slangapp.demo.pojos.ActivityAbstract;
 import com.slangapp.demo.pojos.WordScrambleActivity;
+import com.slangapp.demo.repositories.ActivityRepository;
 import com.slangapp.demo.repositories.PhonemeDistractorRepository;
 import com.slangapp.demo.repositories.ResourceRepository;
 import com.slangapp.demo.repositories.WordRepository;
@@ -41,6 +43,9 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    ActivityRepository activityRepository;
+
     private List<PhonemeDistractor> phonemeDistractorList;
 
     @PostConstruct
@@ -52,29 +57,34 @@ public class ActivityServiceImpl implements ActivityService {
     /**
      * Will generate an activity for the user
      * @param id
-     * @return Activity
+     * @return ActivityInterface
      */
     @Override
     public ActivityResponse getUserActivity(Long id) {
-        Activity currentActivity =  getActivityByWordId(id);
-        Activity nextActivity = null;
-        if(currentActivity != null && currentActivity instanceof ActivityAbstract){
-            nextActivity = getNextActivityByWordId(((ActivityAbstract) currentActivity).getActivityId());
+        ActivityInterface currentActivityInterface =  getActivityByWordId(id);
+        ActivityInterface nextActivityInterface = null;
+        if(currentActivityInterface != null && currentActivityInterface instanceof ActivityAbstract){
+            nextActivityInterface = getNextActivityByWordId(((ActivityAbstract) currentActivityInterface).getActivityId());
         }
 
-        return ActivityResponse.builder().currentActivity(currentActivity).nextActivity(nextActivity).build();
+        return ActivityResponse.builder().currentActivityInterface(currentActivityInterface).nextActivityInterface(nextActivityInterface).build();
 
     }
 
     @Override
     public ActivityResponse evaluate(ActivityEvaluationRequest actEvRequest) throws MissingAnswerException{
         Word currentWord = wordRepository.getOne(actEvRequest.getCurrentActivityId());
-        if(currentWord.getWord().length() > actEvRequest.getAnswer().size()  ){
+        WordScrambleActivity currentActivityInterface =  (WordScrambleActivity)getActivityByWord(currentWord);
+        ActivityInterface nextActivityInterface = null;
+        if(currentActivityInterface == null || currentWord.getWord().length() > actEvRequest.getAnswer().size()  ){
             throw new MissingAnswerException();
         }
+        currentActivityInterface = (WordScrambleActivity) evaluateResponse(actEvRequest, currentWord, currentActivityInterface);
+        if(currentActivityInterface != null && currentActivityInterface instanceof ActivityAbstract){
+            nextActivityInterface = getNextActivityByWordId((currentActivityInterface).getActivityId());
+        }
 
-
-        return evaluateResponse(actEvRequest);
+        return ActivityResponse.builder().currentActivityInterface(currentActivityInterface).nextActivityInterface(nextActivityInterface).build();
     }
 
     /**
@@ -135,7 +145,7 @@ public class ActivityServiceImpl implements ActivityService {
      * @param wordId
      * @return
      */
-    private Activity getActivityByWordId(long wordId){
+    private ActivityInterface getActivityByWordId(long wordId){
         Word word = wordRepository.findFirstByIdGreaterThanEqualOrderById(wordId);
         return getActivityByWord(word);
     }
@@ -145,17 +155,17 @@ public class ActivityServiceImpl implements ActivityService {
      * @param wordId
      * @return
      */
-    private Activity getNextActivityByWordId(long wordId){
+    private ActivityInterface getNextActivityByWordId(long wordId){
         Word word = wordRepository.findFirstByIdGreaterThanOrderById(wordId);
         return getActivityByWord(word);
     }
 
     /**
-     * Method to get the Activity By Word
+     * Method to get the ActivityInterface By Word
      * @param word
      * @return
      */
-    private Activity getActivityByWord(Word word){
+    private ActivityInterface getActivityByWord(Word word){
         if(word == null) return null;
         return WordScrambleActivity.builder()
                 .activityTypeEnum(ActivityTypeEnum.WORD_SCRAMBLE)
@@ -184,10 +194,42 @@ public class ActivityServiceImpl implements ActivityService {
         return modelMapper.map(resourceList, targetListType);
     }
 
-    private ActivityResponse evaluateResponse(ActivityEvaluationRequest activityEvaluationRequest){
+    private void saveActivity(ActivityInterface activityInterface){
+    }
 
+    private ActivityInterface evaluateResponse(ActivityEvaluationRequest actEvRequest, Word currentWord, WordScrambleActivity currentActivityInterface){
+        boolean correct = true;
+        int errors = 0;
+        int wordLength = currentWord.getWord().length();
+        List<String> corectAnswer = new ArrayList<>();
+        for(int i = 0; i < wordLength; i++){
+            if(currentWord.getWord().charAt(i) != actEvRequest.getAnswer().get(i).charAt(0)){
+                errors++;
+                correct = false;
+            }
+            corectAnswer.add(String.valueOf(currentWord.getWord().charAt(i)));
+        }
+        currentActivityInterface.setCorrectAnswer(corectAnswer);
+        currentActivityInterface.setCorrect(correct);
+        currentActivityInterface.setChoices(null);
+        int newXP = calculateXP(wordLength, errors, actEvRequest.getCurrentXP() != null ? actEvRequest.getCurrentXP() : 0);
+        currentActivityInterface.setCurrentXP(newXP);
+        currentActivityInterface.setMessage(correct ? "Super!" : "You missed "+ errors + " letters :(" );
 
-        return null;
+        return currentActivityInterface;
 
+    }
+
+    private int calculateXP(int length, int errors, int currentXP){
+        int addToXP = 0;
+        int correctCharacters = length - errors;
+        if(errors == 0){
+            addToXP = 3;
+        } else if(correctCharacters == 0 || Math.floor(correctCharacters / length) < 0.33){
+            addToXP = 1;
+        } else {
+            addToXP = 2;
+        }
+        return currentXP + addToXP;
     }
 }

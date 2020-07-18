@@ -5,7 +5,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -13,22 +12,28 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "word")
+@Table(name = "activities")
 @Builder(toBuilder = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Word implements Serializable {
+public class Activity {
 
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "word_id", nullable = false)
+    @Column(name = "activity_id", nullable = false)
     private Long id;
 
-    @Column(name = "word", nullable = false)
-    private String word;
+    @Column(name = "hash_code", nullable = false)
+    private long hashCode;
 
-    @Column(name = "phonetic", nullable = false)
-    private String phonetic;
+    @Column(name = "generated_options", nullable = false)
+    private String generatedOptions;
+
+    @Column(name = "answers", nullable = false)
+    private String answer;
+
+    @Column(name = "correct")
+    private Boolean correct;
 
     @Column(name = "created_at")
     @CreationTimestamp

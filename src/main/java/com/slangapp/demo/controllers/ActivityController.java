@@ -28,7 +28,8 @@ public class ActivityController {
     }
 
     @PostMapping("/{id}/evaluate")
-    public ActivityResponse evaluate(@Valid @RequestBody ActivityEvaluationRequest activityEvaluationRequest){
+    public ActivityResponse evaluate(@PathVariable("id") Long id, @Valid @RequestBody ActivityEvaluationRequest activityEvaluationRequest){
+        activityEvaluationRequest.setCurrentActivityId(id);
         return  activityService.evaluate(activityEvaluationRequest);
     }
 }

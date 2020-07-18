@@ -1,7 +1,7 @@
 package com.slangapp.demo.controllers.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.slangapp.demo.pojos.Activity;
+import com.slangapp.demo.pojos.ActivityInterface;
 import lombok.*;
 
 @Getter
@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ActivityResponse {
     @JsonProperty("current_activity")
-    private Activity currentActivity;
+    private ActivityInterface currentActivityInterface;
     @JsonProperty("next_activity")
-    private Activity nextActivity;
+    private ActivityInterface nextActivityInterface;
 }
