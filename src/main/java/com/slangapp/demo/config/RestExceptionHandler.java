@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.slangapp.demo.config.exceptions.MissingAnswerException;
@@ -43,6 +44,12 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorInfo> handleHttpRequestMethodNotSupportedException(HttpServletRequest request, final HttpMessageNotReadableException e) {
+        log.error("Exception : ", e);
+        return error(e, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorInfo> handleMissingRequestHeaderException(HttpServletRequest request, final MissingRequestHeaderException e) {
         log.error("Exception : ", e);
         return error(e, HttpStatus.BAD_REQUEST, request);
     }

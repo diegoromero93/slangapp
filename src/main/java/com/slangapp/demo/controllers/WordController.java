@@ -4,8 +4,11 @@ import com.slangapp.demo.controllers.request.WordRequest;
 import com.slangapp.demo.controllers.responses.WordResponse;
 import com.slangapp.demo.services.WordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,6 +22,9 @@ public class WordController {
 
     @Autowired
     WordService wordService;
+
+    @Value("${aws.header.validation}")
+    String validationHeaderProp;
 
 
     @GetMapping(value = {"", "/", "/list"})
@@ -39,7 +45,11 @@ public class WordController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public WordResponse createWord(@Valid @RequestBody WordRequest wordRequest) throws InterruptedException, ExecutionException, IOException {
-        return wordService.save(wordRequest);
+    public WordResponse createWord(@Valid @RequestBody WordRequest wordRequest, @RequestHeader(name="validation-header")  String validationHeader) throws InterruptedException, ExecutionException, IOException {
+        if(validationHeaderProp.equals(validationHeader)){
+            return wordService.save(wordRequest);
+        } else {
+            return null;
+        }
     }
 }
