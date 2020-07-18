@@ -229,6 +229,9 @@ public class ActivityServiceImpl implements ActivityService {
         } else {
             addToXP = 2;
         }
+        if(length >= 6){
+            addToXP = addToXP*2;
+        }
         return currentXP + addToXP;
     }
 }
