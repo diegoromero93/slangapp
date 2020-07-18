@@ -5,7 +5,6 @@ import com.slangapp.demo.controllers.request.ActivityEvaluationRequest;
 import com.slangapp.demo.controllers.responses.ResourceResponse;
 import com.slangapp.demo.enums.ActivityTypeEnum;
 import com.slangapp.demo.enums.ResourceTypeEnum;
-import com.slangapp.demo.models.Activity;
 import com.slangapp.demo.models.PhonemeDistractor;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
