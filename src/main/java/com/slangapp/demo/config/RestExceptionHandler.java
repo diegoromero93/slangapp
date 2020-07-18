@@ -1,6 +1,7 @@
 package com.slangapp.demo.config;
 
 import com.slangapp.demo.config.error.ErrorInfo;
+import com.slangapp.demo.config.exceptions.MissingHeaderAuthException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,12 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(value = MissingRequestHeaderException.class)
     public ResponseEntity<ErrorInfo> handleMissingRequestHeaderException(HttpServletRequest request, final MissingRequestHeaderException e) {
+        log.error("Exception : ", e);
+        return error(e, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = MissingHeaderAuthException.class)
+    public ResponseEntity<ErrorInfo> handleMissingHeaderAuthException(HttpServletRequest request, final RuntimeException e) {
         log.error("Exception : ", e);
         return error(e, HttpStatus.BAD_REQUEST, request);
     }

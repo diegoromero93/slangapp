@@ -1,14 +1,13 @@
 package com.slangapp.demo.controllers;
 
+import com.slangapp.demo.config.exceptions.MissingHeaderAuthException;
 import com.slangapp.demo.controllers.request.WordRequest;
 import com.slangapp.demo.controllers.responses.WordResponse;
 import com.slangapp.demo.services.WordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -49,7 +48,7 @@ public class WordController {
         if(validationHeaderProp.equals(validationHeader)){
             return wordService.save(wordRequest);
         } else {
-            return null;
+             throw new MissingHeaderAuthException("Mission validation-header");
         }
     }
 }
