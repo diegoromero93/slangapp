@@ -16,11 +16,6 @@ public class ActivityEvaluationRequest {
 
     @NonNull
     @NotEmpty
-    @JsonProperty("current_activity_id")
-    private Long currentActivityId;
-
-    @NonNull
-    @NotEmpty
     @Size(min = 1)
     private List<String> answer;
 

@@ -118,7 +118,7 @@ public class WordServiceImpl implements WordService {
 
 
     private String getResourceURL(String word) throws IOException, ExecutionException, InterruptedException {
-        return ""; //amazonAudioManagementService.createAndSaveAudioFile(word).get();
+        return amazonAudioManagementService.createAndSaveAudioFile(word).get();
     }
 
     private String getIPAPhonetic(String word) throws FileNotFoundException, ExecutionException, InterruptedException {

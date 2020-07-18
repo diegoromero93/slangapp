@@ -12,25 +12,22 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "activities")
+@Table(name = "activity_log")
 @Builder(toBuilder = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Activity {
+public class ActivityLog {
 
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "activity_id", nullable = false)
+    @Column(name = "activity_log_id", nullable = false)
     private Long id;
 
-    @Column(name = "hash_code", nullable = false)
-    private long hashCode;
+    @Column(name = "correct_answer", nullable = false)
+    private String correctAnswer;
 
-    @Column(name = "generated_options", nullable = false)
-    private String generatedOptions;
-
-    @Column(name = "answers", nullable = false)
-    private String answer;
+    @Column(name = "user_answer", nullable = false)
+    private String userAnswer;
 
     @Column(name = "correct")
     private Boolean correct;

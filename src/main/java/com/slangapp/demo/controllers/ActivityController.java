@@ -23,13 +23,12 @@ public class ActivityController {
     }
 
     @GetMapping("/{id}")
-    public ActivityResponse getWord(@PathVariable("id") Long id) {
+    public ActivityResponse getCurrentActivity(@PathVariable("id") Long id) {
         return  activityService.getUserActivity(id);
     }
 
     @PostMapping("/{id}/evaluate")
     public ActivityResponse evaluate(@PathVariable("id") Long id, @Valid @RequestBody ActivityEvaluationRequest activityEvaluationRequest){
-        activityEvaluationRequest.setCurrentActivityId(id);
-        return  activityService.evaluate(activityEvaluationRequest);
+        return  activityService.evaluate(activityEvaluationRequest, id);
     }
 }

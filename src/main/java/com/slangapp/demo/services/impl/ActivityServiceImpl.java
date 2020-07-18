@@ -1,17 +1,19 @@
 package com.slangapp.demo.services.impl;
 
+import com.slangapp.demo.config.exceptions.AnswerDoesNotMatchSpecs;
 import com.slangapp.demo.config.exceptions.MissingAnswerException;
 import com.slangapp.demo.controllers.request.ActivityEvaluationRequest;
 import com.slangapp.demo.controllers.responses.ResourceResponse;
 import com.slangapp.demo.enums.ActivityTypeEnum;
 import com.slangapp.demo.enums.ResourceTypeEnum;
+import com.slangapp.demo.models.ActivityLog;
 import com.slangapp.demo.models.PhonemeDistractor;
 import com.slangapp.demo.models.Resource;
 import com.slangapp.demo.models.Word;
 import com.slangapp.demo.pojos.ActivityInterface;
 import com.slangapp.demo.pojos.ActivityAbstract;
 import com.slangapp.demo.pojos.WordScrambleActivity;
-import com.slangapp.demo.repositories.ActivityRepository;
+import com.slangapp.demo.repositories.ActivityLogRepository;
 import com.slangapp.demo.repositories.PhonemeDistractorRepository;
 import com.slangapp.demo.repositories.ResourceRepository;
 import com.slangapp.demo.repositories.WordRepository;
@@ -43,7 +45,7 @@ public class ActivityServiceImpl implements ActivityService {
     private ModelMapper modelMapper;
 
     @Autowired
-    ActivityRepository activityRepository;
+    ActivityLogRepository activityLogRepository;
 
     private List<PhonemeDistractor> phonemeDistractorList;
 
@@ -71,12 +73,14 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public ActivityResponse evaluate(ActivityEvaluationRequest actEvRequest) throws MissingAnswerException{
-        Word currentWord = wordRepository.getOne(actEvRequest.getCurrentActivityId());
+    public ActivityResponse evaluate(ActivityEvaluationRequest actEvRequest, Long activityId) throws MissingAnswerException{
+        Word currentWord = wordRepository.getOne(activityId);
         WordScrambleActivity currentActivityInterface =  (WordScrambleActivity)getActivityByWord(currentWord);
         ActivityInterface nextActivityInterface = null;
-        if(currentActivityInterface == null || currentWord.getWord().length() > actEvRequest.getAnswer().size()  ){
+        if(currentActivityInterface == null ){
             throw new MissingAnswerException();
+        }else if(currentWord.getWord().length() != actEvRequest.getAnswer().size() ){
+            throw new AnswerDoesNotMatchSpecs("Answer length is different than the expected correct answer");
         }
         currentActivityInterface = (WordScrambleActivity) evaluateResponse(actEvRequest, currentWord, currentActivityInterface);
         if(currentActivityInterface != null && currentActivityInterface instanceof ActivityAbstract){
@@ -193,20 +197,20 @@ public class ActivityServiceImpl implements ActivityService {
         return modelMapper.map(resourceList, targetListType);
     }
 
-    private void saveActivity(ActivityInterface activityInterface){
-    }
 
     private ActivityInterface evaluateResponse(ActivityEvaluationRequest actEvRequest, Word currentWord, WordScrambleActivity currentActivityInterface){
         boolean correct = true;
         int errors = 0;
         int wordLength = currentWord.getWord().length();
         List<String> corectAnswer = new ArrayList<>();
+        String userAnswer = "";
         for(int i = 0; i < wordLength; i++){
             if(currentWord.getWord().charAt(i) != actEvRequest.getAnswer().get(i).charAt(0)){
                 errors++;
                 correct = false;
             }
             corectAnswer.add(String.valueOf(currentWord.getWord().charAt(i)));
+            userAnswer += actEvRequest.getAnswer().get(i).charAt(0);
         }
         currentActivityInterface.setCorrectAnswer(corectAnswer);
         currentActivityInterface.setCorrect(correct);
@@ -214,6 +218,8 @@ public class ActivityServiceImpl implements ActivityService {
         int newXP = calculateXP(wordLength, errors, actEvRequest.getCurrentXP() != null ? actEvRequest.getCurrentXP() : 0);
         currentActivityInterface.setCurrentXP(newXP);
         currentActivityInterface.setMessage(correct ? "Super!" : "You missed "+ errors + " letters :(" );
+
+        addLog(currentWord.getWord(), userAnswer, correct);
 
         return currentActivityInterface;
 
@@ -233,5 +239,11 @@ public class ActivityServiceImpl implements ActivityService {
             addToXP = addToXP*2;
         }
         return currentXP + addToXP;
+    }
+
+    private void addLog(String correctAnswer, String userAnswer, Boolean correct){
+        ActivityLog activityLog = ActivityLog.builder().correctAnswer(correctAnswer)
+                .correct(correct).userAnswer(userAnswer).build();
+        activityLogRepository.save(activityLog);
     }
 }
