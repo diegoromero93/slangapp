@@ -64,5 +64,5 @@ mvn spring-boot:run
 ```
 
 ## Live Demo and Doc
-+ API doc can be find here [Link to docs](http://slangapp.us-east-2.elasticbeanstalk.com/swagger-ui.html)
-+ Live demo can be finde here + API doc can be find here [Link to demo](http://slangapp.us-east-2.elasticbeanstalk.com/api/v1/word)
++ API doc can be find here [Link to docs](https://slangapp.us-east-2.elasticbeanstalk.com/swagger-ui.html)
++ Live demo can be finde here + API doc can be find here [Link to demo](https://slangapp.us-east-2.elasticbeanstalk.com/api/v1/word)
