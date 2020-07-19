@@ -47,22 +47,6 @@ public class WordTest {
     @Value("${aws.header.validation}")
     String header;
 
-    @Autowired
-    private WebApplicationContext context;
-
-
-
-    @Test
-    public void createWordWithSpaces() throws Exception {
-        WordRequest wordRequest = WordRequest.builder().word("create word with space").build();
-
-        mockMvc.perform(post("/api/v1/word")
-                .contentType("application/json")
-                .header("validation-header", header)
-                .content(objectMapper.writeValueAsString(wordRequest)))
-                .andExpect(status().isBadRequest());
-    }
-
 
     @Test
     public void createWordWithOutHeader() throws Exception {
