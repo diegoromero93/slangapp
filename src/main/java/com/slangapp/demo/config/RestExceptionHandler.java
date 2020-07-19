@@ -61,5 +61,11 @@ public class RestExceptionHandler {
         return error(e, HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<ErrorInfo> handleIllegalArgumentException(HttpServletRequest request, final IllegalArgumentException e) {
+        log.error("Exception : ", e);
+        return error(e, HttpStatus.BAD_REQUEST, request);
+    }
+
 
 }

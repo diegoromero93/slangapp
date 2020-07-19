@@ -7,7 +7,9 @@ This is a small project por the code challenge that you sent to me
 ## Before we start
 For generating disctractors I'm using phonemes, In my research I found some common mistakes that people make and are related to minimal pairs 
 ([See here](https://www.englishclub.com/pronunciation/minimal-pairs.htm),  [and here](https://allesl.com/minimal-pairs-list-examples/), [and here](https://glossary.sil.org/term/phonetically-similar-segment#:~:text=Phonetically%20similar%20segments%20are%20two,one%20or%20two%20articulatory%20features.)). So 
-I need the dictionary file to get the actual word phoneme and then I've created a table where I've mapped the common mistakes for example
+I need the dictionary file to get the actual word phoneme and then I've created a table where I've mapped the common mistakes. 
+<br/>
+For example:
 
 
 | This phoneme | gets confused with | Example|

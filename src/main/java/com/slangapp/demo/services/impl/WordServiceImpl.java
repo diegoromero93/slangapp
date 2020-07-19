@@ -65,6 +65,7 @@ public class WordServiceImpl implements WordService {
     @Override
     @Transactional
     public WordResponse save(WordRequest wordRequest) throws IOException, ExecutionException, InterruptedException {
+        validateWord(wordRequest);
         Word word = getModelFromRequest(wordRequest);
         word.setPhonetic(getIPAPhonetic(word.getWord()));
         Resource resource = new Resource();
@@ -74,6 +75,12 @@ public class WordServiceImpl implements WordService {
         wordRepository.save(word);
         resourceRepository.save(resource);
         return getRequestFromModel(word, Arrays.asList(resource));
+    }
+
+    private void validateWord(WordRequest wordRequest) throws IllegalArgumentException {
+        if(wordRequest.getWord().contains( " ")){
+            throw new IllegalArgumentException(" word contains spaces");
+        }
     }
 
     @Override

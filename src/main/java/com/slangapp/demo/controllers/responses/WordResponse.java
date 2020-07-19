@@ -1,16 +1,19 @@
 package com.slangapp.demo.controllers.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 
 @Getter
 @Setter
-public class WordResponse {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class WordResponse implements Serializable{
     private Long id;
     private String word;
     private String phonetic;
